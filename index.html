@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+
+    <style>
+      /* .img {
+        width: 800px;
+        height: 800px;
+        
+      } */
+      /* canvas {
+        background-color: pink;
+        width: 800px;
+        height: 800px;
+      } */
+    </style>
+  </head>
+  <body>
+    <canvas id="canvas" width="700" height="700"></canvas>
+    <!-- <img id="image" /> -->
+    <button id="btn-con">connect</button>
+    <button id="btn-dis">Dis connect</button>
+    <button id="btn-clear-marker">clear marker</button>
+  </body>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.js"></script>
+  <script>
+    var Marker = function () {
+      this.Sprite = new Image();
+      this.Sprite.src =
+        "http://www.clker.com/cliparts/w/O/e/P/x/i/map-marker-hi.png";
+      this.Width = 12;
+      this.Height = 20;
+      this.XPos = 0;
+      this.YPos = 0;
+    };
+
+    var Markers = new Array();
+
+    let socket = io.connect("http://localhost:4000/camera");
+    const canvas = document.querySelector("#canvas");
+    const ctx = canvas.getContext("2d");
+
+    var mouseClicked = function (mouse) {
+      // Get corrent mouse coords
+      var rect = canvas.getBoundingClientRect();
+      var mouseXPos = mouse.x - rect.left;
+      var mouseYPos = mouse.y - rect.top;
+
+      console.log("Marker added");
+
+      // Move the marker when placed to a better location
+      var marker = new Marker();
+      marker.XPos = mouseXPos - marker.Width / 2;
+      marker.YPos = mouseYPos - marker.Height;
+
+      Markers.push(marker);
+    };
+
+    // Add mouse click event listener to canvas
+    canvas.addEventListener("mousedown", mouseClicked, false);
+
+    // document.onvisibilitychange = () => {
+    //   if (document.visibilityState === "hidden") {
+    //     console.log("hidden");
+    //     disConnectSocket();
+    //   } else {
+    //     console.log("visiable");
+    connectSocket();
+    //   }
+    // };
+
+    disConnectBtn = document.querySelector("#btn-dis");
+    connectBtn = document.querySelector("#btn-con");
+    clearMarkerBtn = document.querySelector("#btn-clear-marker");
+
+    disConnectBtn.addEventListener("click", disConnectSocket);
+    connectBtn.addEventListener("click", reConnect);
+    clearMarkerBtn.addEventListener("click", clearMarker);
+
+    function clearMarker() {
+      Markers.length = 0;
+    }
+
+    function reConnect() {
+      socket = io.connect("http://localhost:4000/camera");
+      connectSocket();
+    }
+
+    async function connectSocket() {
+      socket.on("connect", (e) => {
+        console.log("socket connected");
+      });
+
+      const img = new Image();
+      img.setAttribute("class", "img");
+      img.onload = () => {
+        ctx.drawImage(img, 0, 0);
+
+        for (var i = 0; i < Markers.length; i++) {
+          var tempMarker = Markers[i];
+          // Draw marker
+          ctx.drawImage(
+            tempMarker.Sprite,
+            tempMarker.XPos,
+            tempMarker.YPos,
+            tempMarker.Width,
+            tempMarker.Height
+          );
+
+          // Calculate postion text
+          var markerText =
+            "Postion (X:" + tempMarker.XPos + ", Y:" + tempMarker.YPos;
+
+          // Draw a simple box so you can see the position
+          var textMeasurements = ctx.measureText(markerText);
+          ctx.fillStyle = "#666";
+          ctx.globalAlpha = 0.7;
+          ctx.fillRect(
+            tempMarker.XPos - textMeasurements.width / 2,
+            tempMarker.YPos - 15,
+            textMeasurements.width,
+            20
+          );
+          ctx.globalAlpha = 1;
+
+          // Draw position above
+          ctx.fillStyle = "#000";
+          ctx.fillText(
+            markerText,
+            tempMarker.XPos - textMeasurements.width / 2,
+            tempMarker.YPos
+          );
+        }
+      };
+
+      socket.on("image", (data) => {
+        // const img = document.querySelector("#image");
+
+        img.src = `data:image/jpge;base64,${data}`;
+      });
+
+      socket.on("disconnect", () => {
+        console.log("socket disconnected");
+      });
+    }
+
+    function disConnectSocket() {
+      socket.disconnect();
+    }
+  </script>
+</html>
