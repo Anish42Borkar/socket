@@ -56,4 +56,8 @@ function serveCameraImages(socket) {
   }, 1000 / FPS);
 }
 
-server.listen(4000);
+const port = process.env.PORT || 4000;
+
+server.listen(port, () => {
+  console.log(`listening on port ${port}`);
+});
