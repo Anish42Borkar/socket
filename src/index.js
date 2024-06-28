@@ -3,13 +3,27 @@
 const express = require("express");
 const fs = require("fs");
 const app = express();
-const server = require("http").Server({
+const serverHttp = require("http");
+
+const socketIO = require("socket.io");
+const path = require("path");
+
+// Set the view engine to EJS
+app.set("view engine", "ejs");
+
+// Set the views directory
+app.set("views", path.join(__dirname, "views"));
+
+// Serve static files
+app.use(express.static(path.join(__dirname, "public")));
+
+const server = serverHttp.createServer(app);
+
+const io = socketIO(server, {
   cors: {
     origin: "*",
   },
 });
-const io = require("socket.io")(server);
-const path = require("path");
 
 let wCap;
 
@@ -24,7 +38,7 @@ function base64_encode(file) {
 
 app.get("/", (req, res) => {
   console.log("home");
-  res.sendFile(path.join(__dirname, "./render/index.html"));
+  res.sendFile(path.join(__dirname, "views/index.html"));
 });
 
 // app.get("/about", (req, res) => {
