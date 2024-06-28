@@ -7,7 +7,7 @@ module.exports = {
   entry: "./src/index.js",
   output: {
     filename: "index.js",
-    path: path.resolve(__dirname, "project/src/dist"),
+    path: path.resolve(__dirname, "dist"),
   },
   module: {
     rules: [
@@ -21,6 +21,7 @@ module.exports = {
   plugins: [
     new CopyWebpackPlugin({
       patterns: [{ from: "src/assets", to: "assets" }],
+      patterns: [{ from: "src/render", to: "render" }],
     }),
   ],
 

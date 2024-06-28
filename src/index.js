@@ -22,9 +22,10 @@ function base64_encode(file) {
   return imageAsBase64;
 }
 
-// app.get("/", (req, res) => {
-//   res.sendFile(path.join(__dirname, "index.html"));
-// });
+app.get("/", (req, res) => {
+  console.log("home");
+  res.sendFile(path.join(__dirname, "./render/index.html"));
+});
 
 // app.get("/about", (req, res) => {
 //   res.sendFile(path.join(__dirname, "about.html"));
