@@ -1,6 +1,7 @@
-const fs = require("fs");
-const openCV = require("opencv4nodejs-prebuilt-install");
+// const openCV = require("opencv4nodejs-prebuilt-install");
+
 const express = require("express");
+const fs = require("fs");
 const app = express();
 const server = require("http").Server({
   cors: {
@@ -50,7 +51,7 @@ function serveCameraImages(socket) {
   timeInterval = setInterval(() => {
     // const frame = wCap.read();
     // const image = openCV.imencode(".jpg", frame).toString("base64");
-    const image = base64_encode("botMap.png");
+    const image = base64_encode(path.resolve(__dirname, "assets/botMap.png"));
     socket.emit("image", image);
   }, 1000 / FPS);
 }
